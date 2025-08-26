@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLOutput;
 import java.sql.Struct;
 import java.time.LocalTime;
 import java.util.List;
@@ -60,7 +61,7 @@ public class UserService {
     }
 
     public SubmitResponse validateQuestion(int question,String code,String lang) throws JsonProcessingException {
-        if(!contestStart.isStart())
+        if(false) // made it false for the testing purpose
             return new SubmitResponse("Contest End If U think its a mistake contact ISSA team");
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long id=Long.parseLong(userPrincipal.getUsername());
@@ -73,6 +74,7 @@ public class UserService {
             SubmitResponse submitResponse=null;
             if(question==1) {
                 submitResponse=questionsValid.question1(code,lang);
+                System.out.println("Called Question 1");
                 //System.out.println(submitResponse.isSuccess()+" "+submitResponse.getError()+" "+submitResponse.getOutput());
             }
             else if(question==2) {
