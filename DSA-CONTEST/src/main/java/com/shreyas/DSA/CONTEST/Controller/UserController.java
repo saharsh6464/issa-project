@@ -1,5 +1,6 @@
 package com.shreyas.DSA.CONTEST.Controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shreyas.DSA.CONTEST.DTO.SubmitDTO;
 import com.shreyas.DSA.CONTEST.DTO.SubmitResponse;
 import com.shreyas.DSA.CONTEST.DTO.UserDTO;
@@ -18,15 +19,18 @@ public class UserController {
     private String login(@RequestBody UserDTO userDTO) {
         return userService.loginUser(userDTO.getEmail(),userDTO.getPassword());
     }
+
     @PutMapping("/submit")
-    public SubmitResponse submit(@RequestBody SubmitDTO submitDTO) {
+    public SubmitResponse submit(@RequestBody SubmitDTO submitDTO) throws JsonProcessingException {
         System.out.println(1);
         return userService.validateQuestion(submitDTO.getQuestionId(),submitDTO.getText(),submitDTO.getLanguage());
     }
-    @PutMapping("/run")
-    private SubmitResponse run(@RequestBody SubmitDTO submitDTO) {
-        return userService.validateQuestionRun(submitDTO.getQuestionId(),submitDTO.getText(), submitDTO.getLanguage());
-    }
+//
+//    @PutMapping("/run")
+//    private SubmitResponse run(@RequestBody SubmitDTO submitDTO) {
+//        return userService.validateQuestionRun(submitDTO.getQuestionId(),submitDTO.getText(), submitDTO.getLanguage());
+//    }
+
     @PutMapping("/tabswitch")
     public void tabSwitch() {
         System.out.println("tab");

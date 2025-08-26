@@ -1,5 +1,6 @@
 package com.shreyas.DSA.CONTEST.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shreyas.DSA.CONTEST.DTO.SubmitResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class QuestionsValid {
 //        return pistonService.runAllTests(code, lang, testCases);
 //    }
 
-    public SubmitResponse question1(String code, String lang) {
+    public SubmitResponse question1(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -37,11 +38,24 @@ public class QuestionsValid {
                 Map.of("input", "1 6 3 -1 -7 4 2 1", "expected", "-7 3 4")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        String input =
+        "10\n" +
+                "1 6 -1 0 1 2 -1 -4\n" +
+                "1 5 0 0 0 0 0\n" +
+                "1 4 1 2 -2 -1\n" +
+                "1 7 -1 0 1 2 -1 -4 3\n" +
+                "1 3 -2 1 1\n" +
+                "1 6 -2 0 2 2 -1 1\n" +
+                "1 5 -5 2 3 0 0\n" +
+                "1 8 1 -1 0 -1 2 -2 3 -3\n" +
+                "1 4 -1 0 1 0\n" +
+                "1 6 3 -1 -7 4 2 1\n";
+
+        return pistonService.runAllTests(code, lang,input,testCases);
     }
 
 
-    public SubmitResponse question2(String code, String lang) {
+    public SubmitResponse question2(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -57,9 +71,9 @@ public class QuestionsValid {
                 Map.of("input", "1 3 1 2 3", "expected", "2")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang,"", testCases);
     }
-    public SubmitResponse question3(String code, String lang) {
+    public SubmitResponse question3(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -75,9 +89,9 @@ public class QuestionsValid {
                 Map.of("input", "1 8 abcabcab", "expected", "3")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang,"", testCases);
     }
-    public SubmitResponse question4(String code, String lang) {
+    public SubmitResponse question4(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -95,9 +109,9 @@ public class QuestionsValid {
 
         System.out.println(testCases);
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang,"", testCases);
     }
-    public SubmitResponse question1Run(String code, String lang) {
+    public SubmitResponse question1Run(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -113,11 +127,11 @@ public class QuestionsValid {
                 Map.of("input", "1 6 3 -1 -7 4 2 1", "expected", "-7 3 4")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang,"", testCases);
     }
 
 
-    public SubmitResponse question2Run(String code, String lang) {
+    public SubmitResponse question2Run(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -133,9 +147,9 @@ public class QuestionsValid {
                 Map.of("input", "1 3 1 2 3", "expected", "2")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang, "",testCases);
     }
-    public SubmitResponse question3Run(String code, String lang) {
+    public SubmitResponse question3Run(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -151,9 +165,9 @@ public class QuestionsValid {
                 Map.of("input", "1 8 abcabcab", "expected", "3")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang,"", testCases);
     }
-    public SubmitResponse question4Run(String code, String lang) {
+    public SubmitResponse question4Run(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
         List<Map<String, String>> testCases = List.of(
@@ -169,6 +183,6 @@ public class QuestionsValid {
                 Map.of("input", "1 2 1 2", "expected", "2 1")
         );
 
-        return pistonService.runAllTests(code, lang, testCases);
+        return pistonService.runAllTests(code, lang, "",testCases);
     }
 }

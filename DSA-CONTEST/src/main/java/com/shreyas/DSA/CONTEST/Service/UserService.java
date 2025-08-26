@@ -1,5 +1,6 @@
 package com.shreyas.DSA.CONTEST.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.shreyas.DSA.CONTEST.Configuration.ContestStart;
 import com.shreyas.DSA.CONTEST.DTO.SubmitResponse;
 import com.shreyas.DSA.CONTEST.DTO.UserDTO;
@@ -57,7 +58,8 @@ public class UserService {
         System.out.println(token);
         return token;
     }
-    public SubmitResponse validateQuestion(int question,String code,String lang) {
+
+    public SubmitResponse validateQuestion(int question,String code,String lang) throws JsonProcessingException {
         if(!contestStart.isStart())
             return new SubmitResponse("Contest End If U think its a mistake contact ISSA team");
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -97,34 +99,36 @@ public class UserService {
         }
         return null;
     }
-    public SubmitResponse validateQuestionRun(int question,String code,String lang) {
-        if(!contestStart.isStart())
-            return new SubmitResponse("Contest End If U think its a mistake contact ISSA team");
-        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Long id=Long.parseLong(userPrincipal.getUsername());
-        Optional<User> user=userRepo.findById(id);
-        System.out.println(question);
-        if(user.isPresent()) {
-            Question questionObj=user.get().getQuestion(question);
-            if(questionObj.isSolved())
-                return new SubmitResponse("U solved this question already if u want to submit optimize code contact ISSA team we will decide based on our mood");
-            SubmitResponse submitResponse=null;
-            if(question==1) {
-                submitResponse=questionsValid.question1Run(code,lang);
-            }
-            else if(question==2) {
-                submitResponse=questionsValid.question2Run(code,lang);
-            }
-            else if(question==3) {
-                submitResponse=questionsValid.question3Run(code,lang);
-            }
-            else if(question==4) {
-                submitResponse=questionsValid.question4Run(code,lang);
-            }
-            return submitResponse;
-        }
-        return null;
-    }
+
+//    public SubmitResponse validateQuestionRun(int question,String code,String lang) {
+//        if(!contestStart.isStart())
+//            return new SubmitResponse("Contest End If U think its a mistake contact ISSA team");
+//        UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Long id=Long.parseLong(userPrincipal.getUsername());
+//        Optional<User> user=userRepo.findById(id);
+//        System.out.println(question);
+//        if(user.isPresent()) {
+//            Question questionObj=user.get().getQuestion(question);
+//            if(questionObj.isSolved())
+//                return new SubmitResponse("U solved this question already if u want to submit optimize code contact ISSA team we will decide based on our mood");
+//            SubmitResponse submitResponse=null;
+//            if(question==1) {
+//                submitResponse=questionsValid.question1Run(code,lang);
+//            }
+//            else if(question==2) {
+//                submitResponse=questionsValid.question2Run(code,lang);
+//            }
+//            else if(question==3) {
+//                submitResponse=questionsValid.question3Run(code,lang);
+//            }
+//            else if(question==4) {
+//                submitResponse=questionsValid.question4Run(code,lang);
+//            }
+//            return submitResponse;
+//        }
+//        return null;
+//    }
+
     public void tabSwitch() {
         UserPrincipal userPrincipal=(UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long id=Long.parseLong(userPrincipal.getUsername());
