@@ -65,7 +65,7 @@ public class PistonService {
                 if (index >= actualArr.length || !expLine.trim().equals(actualArr[index].trim())) {
                     SubmitResponse obj = new SubmitResponse();
                     obj.setSuccess(false);
-                    obj.setOutput("❌ Testcase No." + (t+1) + " failed for input: " + map.get("input"));
+                    obj.setOutput("❌ Testcase No." + (t + 1) + " failed for input: " + map.get("input"));
                     return obj;
                 }
                 index++;
