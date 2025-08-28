@@ -15,11 +15,14 @@ public class OwnerController {
     }
     @Autowired
     OwnerService ownerService;
+
+
     @PostMapping("/registerUser")
     private void registerUser(@RequestParam String email, @RequestBody UserDTO userDTO) {
         if(verify(userDTO))
             ownerService.registerUser(email);
     }
+
     @PutMapping("/start")
     private void startContest(@RequestBody UserDTO userDTO) {
         if(verify(userDTO))

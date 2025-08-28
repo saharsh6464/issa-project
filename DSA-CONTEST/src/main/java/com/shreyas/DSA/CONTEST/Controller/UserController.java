@@ -22,8 +22,13 @@ public class UserController {
 
     @PutMapping("/submit")
     public SubmitResponse submit(@RequestBody SubmitDTO submitDTO) throws JsonProcessingException {
-        System.out.println(1);
-        return userService.validateQuestion(submitDTO.getQuestionId(),submitDTO.getText(),submitDTO.getLanguage());
+        System.out.println("RAW DTO DATA");
+        System.out.println(submitDTO.getText());
+        System.out.println(submitDTO.getQuestionId());
+        System.out.println(submitDTO.getLanguage());
+        SubmitResponse obj =  userService.validateQuestion(submitDTO.getQuestionId(),submitDTO.getText(),submitDTO.getLanguage());
+//        SubmitResponse obj = new SubmitResponse("testing");
+        return obj;
     }
 //
 //    @PutMapping("/run")

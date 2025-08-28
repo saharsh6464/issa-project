@@ -19,6 +19,7 @@ public class Config {
                 registry.addMapping("/**")
                         .allowedOrigins(
                                 "http://localhost:5173",
+                                "http://localhost:5174",
                                 "http://localhost:4200",
                                 "http://localhost:8080",
                                 "https://4qtw866p-5173.inc1.devtunnels.ms/"

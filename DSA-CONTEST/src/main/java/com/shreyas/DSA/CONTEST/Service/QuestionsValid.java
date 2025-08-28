@@ -8,11 +8,15 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @Service
 public class QuestionsValid {
     @Autowired
     PistonService pistonService;
+    @Autowired
+    private SubmissionQueueService queueService;
 //    public SubmitResponse question1(String code, String lang) {
 //        System.out.println("test1");
 //        List<Map<String, String>> testCases = List.of(
@@ -55,24 +59,80 @@ public class QuestionsValid {
     }
 
 
-    public SubmitResponse question2(String code, String lang) throws JsonProcessingException {
-        System.out.println("test1");
+public SubmitResponse question2(String code, String lang) throws JsonProcessingException {
+    System.out.println("test2");
 
-        List<Map<String, String>> testCases = List.of(
-                Map.of("input", "1 9 1 8 6 2 5 4 8 3 7", "expected", "49"),
-                Map.of("input", "1 6 1 2 4 3 5 6", "expected", "12"),
-                Map.of("input", "1 5 1 8 6 2 5", "expected", "15"),
-                Map.of("input", "1 4 1 1 1 1", "expected", "3"),
-                Map.of("input", "1 7 1 2 3 4 5 6 7", "expected", "12"),
-                Map.of("input", "1 8 1 2 3 4 5 6 7 8", "expected", "16"),
-                Map.of("input", "1 10 1 2 3 4 5 6 7 8 9 10", "expected", "25"),
-                Map.of("input", "1 5 5 4 3 2 1", "expected", "6"),
-                Map.of("input", "1 6 1 2 3 4 5 6", "expected", "9"),
-                Map.of("input", "1 3 1 2 3", "expected", "2")
-        );
+    List<Map<String, String>> testCases = List.of(
+            Map.of("input", "1 2", "expected", "3"),
+            Map.of("input", "1 -5", "expected", "-4"),
+            Map.of("input", "100 200", "expected", "300"),
+            Map.of("input", "-7 -8", "expected", "-15"),
+            Map.of("input", "50 75", "expected", "125"),
+            Map.of("input", "-100 50", "expected", "-50"),
+            Map.of("input", "0 0", "expected", "0"),
+            Map.of("input", "999 1", "expected", "1000"),
+            Map.of("input", "-999 -1", "expected", "-1000"),
+            Map.of("input", "123 456", "expected", "579"),
+            Map.of("input", "-123 456", "expected", "333"),
+            Map.of("input", "456 -123", "expected", "333"),
+            Map.of("input", "2147483647 0", "expected", "2147483647"), // max int edge
+            Map.of("input", "-2147483648 0", "expected", "-2147483648"), // min int edge
+            Map.of("input", "2147483647 -1", "expected", "2147483646"),
+            Map.of("input", "-2147483648 1", "expected", "-2147483647"),
+            Map.of("input", "500 -500", "expected", "0"),
+            Map.of("input", "42 58", "expected", "100"),
+            Map.of("input", "7 13", "expected", "20"),
+            Map.of("input", "1000 -1", "expected", "999"),
+            Map.of("input", "-1000 1", "expected", "-999"),
+            Map.of("input", "345 655", "expected", "1000"),
+            Map.of("input", "-500 -600", "expected", "-1100"),
+            Map.of("input", "808 192", "expected", "1000"),
+            Map.of("input", "1234 4321", "expected", "5555")
+    );
 
-        return pistonService.runAllTests(code, lang,"", testCases);
+    String input =
+            "25\n" +
+                    "1 2\n" +
+                    "1 -5\n" +
+                    "100 200\n" +
+                    "-7 -8\n" +
+                    "50 75\n" +
+                    "-100 50\n" +
+                    "0 0\n" +
+                    "999 1\n" +
+                    "-999 -1\n" +
+                    "123 456\n" +
+                    "-123 456\n" +
+                    "456 -123\n" +
+                    "2147483647 0\n" +
+                    "-2147483648 0\n" +
+                    "2147483647 -1\n" +
+                    "-2147483648 1\n" +
+                    "500 -500\n" +
+                    "42 58\n" +
+                    "7 13\n" +
+                    "1000 -1\n" +
+                    "-1000 1\n" +
+                    "345 655\n" +
+                    "-500 -600\n" +
+                    "808 192\n" +
+                    "1234 4321\n";
+
+//    return pistonService.runAllTests(code, lang, input, testCases);
+    Future<SubmitResponse> future = pistonService.submitCode(code, lang, input, testCases);
+    try {
+        SubmitResponse result = future.get(); // blocks until done
+        return result;
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt(); // restore interrupted status
+        SubmitResponse x = new SubmitResponse("Submission was interrupted");
+    } catch (ExecutionException e) {
+        SubmitResponse x = new SubmitResponse("Error during submission: " + e.getCause().getMessage());
     }
+    return new SubmitResponse();
+}
+
+
     public SubmitResponse question3(String code, String lang) throws JsonProcessingException {
         System.out.println("test1");
 
