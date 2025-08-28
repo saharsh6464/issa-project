@@ -1,4 +1,4 @@
-import { createContext,useContext,useReducer } from "react";
+import { createContext,useContext,useReducer ,useState} from "react";
 import Cookies from "js-cookie";
 const DataContext = createContext({});
 
@@ -21,15 +21,20 @@ export const DataProvider = ({ children }) => {
     Cookies.get('bearerToken') || null
   );
 
+  const [email, setEmail]  = useState("");
+
+
   const login = (token) => {
     dispatchBearerToken({ type: 'LOGIN', payload: token });
   };
   return (
-    <DataContext.Provider value={{ token, login }}>
+    <DataContext.Provider value={{email,setEmail,token, login }}>
       {children}
     </DataContext.Provider>
   );
 };
+
+
 
 export const useDataContext = () => {
     return useContext(DataContext);

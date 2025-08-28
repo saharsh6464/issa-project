@@ -1,6 +1,6 @@
 import axios from "./axiosInstance";
 
-const baseurl = "https://b62121fb4076.ngrok-free.app";
+const baseurl = "http://localhost:8080";
 const classroomBase = `${baseurl}/user`;
 
 // Login

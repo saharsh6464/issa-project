@@ -1,28 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FaArrowLeft, FaPlay, FaUpload } from 'react-icons/fa';
-import Editor from '@monaco-editor/react';
-import { mockProblems } from './mockData'; // adjust path if needed
-import { submitCode,runCode } from '../store/api/api';
-import { toast, Toaster } from 'react-hot-toast';
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { FaArrowLeft, FaPlay, FaUpload } from "react-icons/fa";
+import Editor from "@monaco-editor/react";
+import { mockProblems } from "./mockData"; // adjust path if needed
+import { submitCode, runCode } from "../store/api/api";
+import { toast, Toaster } from "react-hot-toast";
 
-const DEFAULT_CODE = {
-
-}
+const DEFAULT_CODE = {};
 
 export default function CodingInterface() {
   const { problemId } = useParams();
   const navigate = useNavigate();
 
   const [problem, setProblem] = useState(null);
-  const [language, setLanguage] = useState('javascript');
-  const [code, setCode] = useState(DEFAULT_CODE.javascript);
-  const [output, setOutput] = useState('');
+  const [language, setLanguage] = useState("javascript");
+  const [code, setCode] = useState("");
+  const [output, setOutput] = useState("");
   const [isSuccess, setIsSuccess] = useState(null);
   const [leftPanelWidth, setLeftPanelWidth] = useState(40);
   const isResizing = useRef(false);
   const containerRef = useRef(null);
   const editorRef = useRef(null);
+  const [isRunning, setIsRunning] = useState(false);
+const [isSubmitting, setisSubmitting] = useState(false);
+
 
   // Load problem
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function CodingInterface() {
       (p) => p.id === parseInt(problemId, 10)
     );
     if (!currentProblem) {
-      setProblem({ title: 'Problem Not Found' });
+      setProblem({ title: "Problem Not Found" });
       return;
     }
     setProblem(currentProblem);
@@ -39,7 +40,7 @@ export default function CodingInterface() {
   // Reset editor content when language changes
   useEffect(() => {
     setCode(DEFAULT_CODE[language]);
-    setOutput('');
+    setOutput("");
     setIsSuccess(null);
   }, [language]);
 
@@ -55,82 +56,28 @@ export default function CodingInterface() {
 
     const handleMouseUp = () => {
       isResizing.current = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
 
   const handleMouseDown = () => {
     isResizing.current = true;
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
   };
 
   const handleEditorDidMount = (editor) => {
     editorRef.current = editor;
   };
 
-  // Run Code
-  const handleRun = async () => {
-    const payload = {
-      problemId: problem?.id,
-      language,
-      code,
-    };
-
-    try {
-      const res = await runCode(payload.problemId,payload.code,payload.language);
-      if (res.success) {
-        setIsSuccess(true);
-        setOutput(res.output);
-        toast.success('Code ran successfully!');
-      } else {
-        setIsSuccess(false);
-        setOutput(res.error || res.output || 'Test case failed!');
-        toast.error('Run failed!');
-      }
-    } catch (err) {
-      setIsSuccess(false);
-      setOutput(String(err));
-      toast.error('Error while running code');
-    }
-  };
-
-  // Submit Code
-  // const handleSubmit = async () => {
-  //   const payload = {
-  //     problemId: problem?.id,
-  //     language,
-  //     code,
-  //   };
-
-  //   console.log(payload.code);
-
-  //   try {
-  //     const res = await submitCode(payload.problemId,payload.code,payload.language);
-  //     console.log(res);
-  //     if (res.data.success) {
-  //       setIsSuccess(true);
-  //       setOutput(res.data.output);
-  //       toast.success('Submission successful!');
-  //     } else {
-  //       setIsSuccess(false);
-  //       setOutput(res.data.error || res.data.output || 'Submission failed!');
-  //       toast.error('Submission failed!');
-  //     }
-  //   } catch (err) {
-  //     setIsSuccess(false);
-  //     setOutput(String(err));
-  //     toast.error('Error during submission');
-  //   }
-  // };
 
   // Submit Code (50 calls + timings)
 const handleSubmit = async () => {
@@ -139,55 +86,101 @@ const handleSubmit = async () => {
     language,
     code,
   };
-
-  try {
-    const times = [];
-
-    // build 50 promises
-    const promises = Array.from({ length: 3 }, async (_, i) => {
-      const start = performance.now();
-      const res = await submitCode(payload.problemId, payload.code, payload.language);
-      const end = performance.now();
-
-      const elapsed = (end - start).toFixed(2);
-      times.push({ request: i + 1, time: elapsed, success: res.data?.success });
-        setIsSuccess(true);
-        setOutput(res.data.output);
-        console.log(res.data.output)
-      return res;
-    });
-
-    // wait until all requests complete
-    await Promise.all(promises);
-
-    // log after all calls finish
-    console.log("=== Benchmark Results (50 requests) ===");
-    times.forEach(t => {
-      console.log(`Request ${t.request}: ${t.time} ms (success: ${t.success})`);
-    });
-
-    const avg = times.reduce((sum, t) => sum + parseFloat(t.time), 0) / times.length;
-    console.log(`Average: ${avg.toFixed(2)} ms`);
-    console.log(`Fastest: ${Math.min(...times.map(t => parseFloat(t.time))).toFixed(2)} ms`);
-    console.log(`Slowest: ${Math.max(...times.map(t => parseFloat(t.time))).toFixed(2)} ms`);
-
-    toast.success("50 submissions completed! Check console for timings.");
-   
+  try {  
+    setisSubmitting(true);
+      const res = await submitCode(payload.problemId, payload.code, payload.language);  
+       setIsSuccess(true);
+       setOutput(res.data.output);
+       setisSubmitting(false);
+//         console.log(res.data.output)
   } catch (err) {
     setIsSuccess(false);
     setOutput(String(err));
+    setisSubmitting(false);
     toast.error("Error during submission benchmarking");
   }
-};
+}; 
 
+const handleRun = async () => {
+  const payload = {
+    problemId: problem?.id,
+    language,
+    code,
+  };
+  try {  
+    setIsRunning(true);
+      
+      const res = await submitCode(payload.problemId, payload.code, payload.language);  
+       setIsSuccess(true);
+       setOutput(res.data.output);
+        setIsRunning(false);
+//         console.log(res.data.output)
+  } catch (err) {
+    setIsSuccess(false);
+    setOutput(String(err));
+     setIsRunning(false);
+    toast.error("Error during submission benchmarking");
+  }
+}; 
+
+
+//   // Submit Code (50 calls + timings)
+// const handleSubmit = async () => {
+//   const payload = {
+//     problemId: problem?.id,
+//     language,
+//     code,
+//   };
+  
+
+//   try {
+//     const times = [];
+
+//     const promises = Array.from({ length: 20}, async (_, i) => {
+//       const start = performance.now();
+//       const res = await submitCode(payload.problemId, payload.code, payload.language);
+//       const end = performance.now();
+
+//       const elapsed = (end - start).toFixed(2);
+//       times.push({ request: i + 1, time: elapsed, success: res.data?.success });
+//         setIsSuccess(true);
+//         setOutput(res.data.output);
+//         console.log(res.data.output)
+//       return res;
+//     });
+
+//     // wait until all requests complete
+//     await Promise.all(promises);
+
+//     // log after all calls finish
+//     console.log("=== Benchmark Results (50 requests) ===");
+//     times.forEach(t => {
+//       console.log(`Request ${t.request}: ${t.time} ms (success: ${t.success})`);
+//     });
+
+//     const avg = times.reduce((sum, t) => sum + parseFloat(t.time), 0) / times.length;
+//     console.log(`Average: ${avg.toFixed(2)} ms`);
+//     console.log(`Fastest: ${Math.min(...times.map(t => parseFloat(t.time))).toFixed(2)} ms`);
+//     console.log(`Slowest: ${Math.max(...times.map(t => parseFloat(t.time))).toFixed(2)} ms`);
+
+//     toast.success("50 submissions completed! Check console for timings.");
+   
+//   } catch (err) {
+//     setIsSuccess(false);
+//     setOutput(String(err));
+//     toast.error("Error during submission benchmarking");
+//   }
+// }; 
 
   if (!problem) {
     return <div className="text-white p-6 text-center">Loading problem...</div>;
   }
 
-  if (problem.title === 'Problem Not Found') {
+  if (problem.title === "Problem Not Found") {
     return (
-      <div className="text-red-400 p-6 text-center">Error: Problem not found.</div>
+      <div className="text-red-400 p-6 text-center">
+        Error: Problem not found.
+      </div>
     );
   }
 
@@ -198,7 +191,7 @@ const handleSubmit = async () => {
       {/* Header */}
       <header className="flex-shrink-0 p-3 border-b border-slate-700 flex items-center gap-3">
         <button
-          onClick={() => navigate('/questions')}
+          onClick={() => navigate("/questions")}
           className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300"
         >
           <FaArrowLeft /> Back to Problem List
@@ -221,19 +214,86 @@ const handleSubmit = async () => {
         </select>
 
         {/* Run */}
-        <button
-          onClick={handleRun}
-          className="ml-2 inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-semibold px-4 py-1.5 rounded-lg"
-        >
-          <FaPlay /> Run
-        </button>
+      <button
+  onClick={handleRun}
+  disabled={isRunning}
+  className={`ml-2 inline-flex items-center gap-2 font-semibold px-4 py-1.5 rounded-lg border border-slate-600
+    ${isRunning ? "bg-slate-600 cursor-not-allowed" : "bg-slate-800 hover:bg-slate-700 text-white"}
+  `}
+>
+  {isRunning ? (
+    <>
+      <svg
+        className="animate-spin h-4 w-4 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+        ></path>
+      </svg>
+      Running...
+    </>
+  ) : (
+    <>
+      <FaPlay /> Run
+    </>
+  )}
+</button>
+
 
         {/* Submit */}
         <button
           onClick={handleSubmit}
-          className="ml-2 inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-1.5 rounded-lg"
+          disabled={isSubmitting}
+          className={`ml-2 inline-flex items-center gap-2 font-semibold px-4 py-1.5 rounded-lg
+    ${
+      isSubmitting
+        ? "bg-indigo-400 cursor-not-allowed"
+        : "bg-indigo-600 hover:bg-indigo-700 text-white"
+    }
+  `}
         >
-          <FaUpload /> Submit
+          {isSubmitting ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                ></path>
+              </svg>
+              Submitting...
+            </>
+          ) : (
+            <>
+              <FaUpload /> Submit
+            </>
+          )}
         </button>
       </header>
 
@@ -279,10 +339,12 @@ const handleSubmit = async () => {
 
             {/* Sample Test Case */}
             <div>
-              <h3 className="text-white font-semibold mb-1">Sample Test Case</h3>
+              <h3 className="text-white font-semibold mb-1">
+                Sample Test Case
+              </h3>
               <div className="bg-slate-800 p-4 rounded-lg text-sm whitespace-pre-wrap">
                 {problem?.Testcase_detail?.isSample ||
-                  'No sample test case available.'}
+                  "No sample test case available."}
               </div>
             </div>
 
@@ -317,16 +379,16 @@ const handleSubmit = async () => {
               height="100%"
               theme="vs-dark"
               language={
-                language === 'python'
-                  ? 'python'
-                  : language === 'java'
-                  ? 'java'
-                  : language === 'cpp'
-                  ? 'cpp'
-                  : 'javascript'
+                language === "python"
+                  ? "python"
+                  : language === "java"
+                  ? "java"
+                  : language === "cpp"
+                  ? "cpp"
+                  : "javascript"
               }
               value={code}
-              onChange={(value) => setCode(value ?? '')}
+              onChange={(value) => setCode(value ?? "")}
               onMount={handleEditorDidMount}
               options={{
                 fontSize: 14,
@@ -345,13 +407,13 @@ const handleSubmit = async () => {
             <pre
               className={`p-3 rounded-lg text-sm whitespace-pre-wrap min-h-[120px] ${
                 isSuccess === true
-                  ? 'bg-green-900 text-green-200'
+                  ? "bg-green-900 text-green-200"
                   : isSuccess === false
-                  ? 'bg-red-900 text-red-200'
-                  : 'bg-slate-800 text-slate-200'
+                  ? "bg-red-900 text-red-200"
+                  : "bg-slate-800 text-slate-200"
               }`}
             >
-              {output || '—'}
+              {output || "—"}
             </pre>
           </div>
         </div>

@@ -7,7 +7,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 export default function Login() {
   const emailRef = useRef();
   const passwordRef = useRef();
-  const { token, login: contextLogin } = useDataContext();
+  const { token, login: contextLogin ,email,setEmail} = useDataContext();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +25,7 @@ export default function Login() {
         try {
             const response = await login(emailRef.current.value, passwordRef.current.value);
             const bearerToken = response.data; // Adjust based on your API response structure
+            setEmail(emailRef.current.value);
             contextLogin(bearerToken);
             console.log(bearerToken);
         } catch (err) {
